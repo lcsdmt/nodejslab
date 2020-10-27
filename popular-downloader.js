@@ -6,18 +6,21 @@ let options = {
     encoding: 'binary'
 };
 
-request('https://reddit.com/r/popular.json',(err, res, body) => {
+request('https://reddit.com/r/popular.json', (err, res, body) => {
     if (err) console.log(err)
     // path.extname(path)
     JSON.parse(body).data.children.forEach(article => {
         const imgThumbnail = article.data.url;
-        const dataPath = path.join(__dirname, `downloads/${article.data.id}${path.extname(imgThumbnail)} `);
-        if(path.extname(imgThumbnail) == ".jpg" || path.extname(imgThumbnail) == ".gif" || path.extname(imgThumbnail) == ".png") {
-            request(imgThumbnail, options, (err, response, data) => {
-                fs.writeFile(dataPath, data, options, (err) => {
-                    console.log(`There was an error: ${err}`);
+        const dataTrail = `./downloads/${article.data.id}${path.extname(imgThumbnail)}`
+        // const dataPath = path.join(__dirname, ); - relavtive vs absolute path
+        if (path.extname(imgThumbnail) == ".jpg" || path.extname(imgThumbnail) == ".gif" || path.extname(imgThumbnail) == ".png") {
+            request(imgThumbnail, options)
+                .then(image => {
+                    fs.writeFile(dataTrail, image, options, (err) => {
+                        console.log(`There was an error: ${err}`);
+                    })
                 })
-            });
+                .catch(err => console.log(err))
         }
     });
 });
